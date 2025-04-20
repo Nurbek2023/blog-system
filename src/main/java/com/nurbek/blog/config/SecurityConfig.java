@@ -6,24 +6,28 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
+
+
 @Configuration
 public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/h2-console/**").permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers("/h2-console/**", "/api/test/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .anyRequest().permitAll()
                 )
-                .formLogin(Customizer.withDefaults())
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/h2-console/**")
+                        .ignoringRequestMatchers("/h2-console/**", "/api/test/**", "/swagger-ui/**", "/v3/api-docs/**")
+                        .disable()
                 )
                 .headers(headers -> headers
                         .defaultsDisabled()
-                        .cacheControl(Customizer.withDefaults())
-                        .frameOptions(frame -> frame.sameOrigin()) // ✅ this is the new syntax
-                );
+                        .cacheControl(c -> c.disable()) // disable cache if you want, or keep it
+                        .frameOptions(frame -> frame.sameOrigin())
+                )
+                .securityContext(securityContext -> securityContext.requireExplicitSave(false)) // optional: don't require explicit saving of security context
+                .sessionManagement(session -> session.disable()); // disable sessions
 
         return http.build();
     }
