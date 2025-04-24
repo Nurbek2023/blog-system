@@ -34,14 +34,15 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String role = "USER";
 
-    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Post> posts;
 
-    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Like> likes;
+
 
     @Override
     public String toString() {

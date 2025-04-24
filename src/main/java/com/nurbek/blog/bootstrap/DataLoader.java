@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import com.nurbek.blog.entity.User;
 import com.nurbek.blog.entity.Post;
 import com.nurbek.blog.entity.Comment;
+import org.springframework.transaction.annotation.Transactional;
 
 
 import java.io.BufferedReader;
@@ -29,62 +30,113 @@ public class DataLoader {
     @Bean
     public ApplicationRunner loadData(){
         return args -> {
-            loadUsers();
-            loadPosts();
-            loadComments();
+//            resetDatabase(); // 👈 resets IDs
+//            loadUsers();
+//            loadPosts();
+//            loadComments();
         };
     }
 
     private void loadUsers() throws Exception {
+        if (userRepository.count() > 0) {
+            System.out.println("⚠️ Users already exist, skipping loading.");
+            return;
+        }
+
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(
                 getClass().getResourceAsStream("/data/users.csv"), StandardCharsets.UTF_8))) {
 
             reader.lines().skip(1).forEach(line -> {
                 String[] fields = line.split(",");
-                User user = new User();
-//                user.setId(Long.parseLong(fields[0]));
-                user.setUsername(fields[0]);
-                user.setEmail(fields[1]);
-                user.setPassword(fields[2]); // Consider encoding password
-                user.setRole(fields[3]);
-                userRepository.save(user);
+                if (fields.length >= 4) {
+                    User user = new User();
+                    user.setUsername(fields[0]);
+                    user.setEmail(fields[1]);
+                    user.setPassword(fields[2]); // ⚠️ Still recommend encoding
+                    user.setRole(fields[3]);
+                    userRepository.save(user);
+                }
             });
             System.out.println("✅ Loaded users from CSV");
         }
     }
 
+
     private void loadPosts() throws Exception {
+
+        if (postRepository.count() > 0) {
+            System.out.println("⚠️ Posts already exist, skipping loading.");
+            return;
+        }
+
+
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(
                 getClass().getResourceAsStream("/data/posts.csv"), StandardCharsets.UTF_8))) {
 
             reader.lines().skip(1).forEach(line -> {
                 String[] fields = line.split(",");
-                Post post = new Post();
-//                post.setId(Long.parseLong(fields[0]));
-                post.setTitle(fields[1]);
-                post.setContent(fields[2]);
-                User user = userRepository.findById(Long.parseLong(fields[3])).orElse(null);
-                post.setAuthor(user);
-                postRepository.save(post);
+                if (fields.length >= 4) {
+                    Post post = new Post();
+                    post.setTitle(fields[0]);
+                    post.setContent(fields[1]);
+                    Long userId = Long.parseLong(fields[2]);
+                    User author = userRepository.findById(userId).orElse(null);
+                    post.setAuthor(author);
+                    postRepository.save(post);
+                }
             });
+            System.out.println("✅ Loaded posts from CSV");
         }
     }
 
     private void loadComments() throws Exception {
+
+        if (commentRepository.count() > 0) {
+            System.out.println("⚠️ Posts already exist, skipping loading.");
+            return;
+        }
+
+
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(
                 getClass().getResourceAsStream("/data/comments.csv"), StandardCharsets.UTF_8))) {
 
             reader.lines().skip(1).forEach(line -> {
                 String[] fields = line.split(",");
-                Comment comment = new Comment();
-//                comment.setId(Long.parseLong(fields[0]));
-                comment.setContent(fields[1]);
-                User user = userRepository.findById(Long.parseLong(fields[2])).orElse(null);
-                Post post = postRepository.findById(Long.parseLong(fields[3])).orElse(null);
-                comment.setAuthor(user);
-                comment.setPost(post);
-                commentRepository.save(comment);
+                if (fields.length >= 4) {
+                    Comment comment = new Comment();
+                    comment.setContent(fields[1]);
+                    Long userId = Long.parseLong(fields[2]);
+                    Long postId = Long.parseLong(fields[3]);
+                    User author = userRepository.findById(userId).orElse(null);
+                    Post post = postRepository.findById(postId).orElse(null);
+                    comment.setAuthor(author);
+                    comment.setPost(post);
+                    commentRepository.save(comment);
+                }
             });
+            System.out.println("✅ Loaded comments from CSV");
         }
     }
+
+    @Transactional
+    protected void resetDatabase() {
+        commentRepository.deleteAll();
+        postRepository.deleteAll();
+        userRepository.deleteAll();
+
+        try {
+            userRepository.resetSequence();
+            postRepository.resetSequence();
+            commentRepository.resetSequence();
+        } catch (Exception e) {
+            System.out.println("⚠️ Skipping sequence reset (probably running H2 or wrong sequence name)");
+        }
+
+        System.out.println("✅ Database reset");
+    }
+
+
+
+
+
 }

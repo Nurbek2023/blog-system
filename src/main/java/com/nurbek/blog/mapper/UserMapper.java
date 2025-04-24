@@ -1,6 +1,7 @@
 package com.nurbek.blog.mapper;
 
 import com.nurbek.blog.dto.UserDto;
+import com.nurbek.blog.dto.UserRegisterDto;
 import com.nurbek.blog.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
@@ -9,4 +10,6 @@ import org.mapstruct.ReportingPolicy;
 public interface UserMapper {
     UserDto toDto(User user);
     User toEntity(UserDto userDto);
+    User toEntity(UserRegisterDto dto);
+
 }

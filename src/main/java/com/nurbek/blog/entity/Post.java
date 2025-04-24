@@ -33,9 +33,10 @@ public class Post {
     @JoinColumn(name = "user_id", nullable = false)
     private User author;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Like> likes;
+
 }

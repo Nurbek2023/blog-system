@@ -13,21 +13,36 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                // 1. Allow access to Swagger UI, H2 console, and test endpoints
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/h2-console/**", "/api/test/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .anyRequest().permitAll()
+                        .requestMatchers(
+                                "/h2-console/**",
+                                "/api/test/**",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**"
+                        ).permitAll()
+                        .anyRequest().permitAll() // allow all other requests for now (dev only!)
                 )
+
+                // 2. Disable CSRF protection for dev tools (Swagger, H2)
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/h2-console/**", "/api/test/**", "/swagger-ui/**", "/v3/api-docs/**")
+                        .ignoringRequestMatchers(
+                                "/h2-console/**",
+                                "/api/test/**",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**"
+                        )
                         .disable()
                 )
+
+                // 3. Allow H2 console to be opened in iframe
                 .headers(headers -> headers
-                        .defaultsDisabled()
-                        .cacheControl(c -> c.disable()) // disable cache if you want, or keep it
                         .frameOptions(frame -> frame.sameOrigin())
                 )
-                .securityContext(securityContext -> securityContext.requireExplicitSave(false)) // optional: don't require explicit saving of security context
-                .sessionManagement(session -> session.disable()); // disable sessions
+
+                // 4. Optional: No sessions, no explicit security context saving
+                .securityContext(securityContext -> securityContext.requireExplicitSave(false))
+                .sessionManagement(session -> session.disable());
 
         return http.build();
     }

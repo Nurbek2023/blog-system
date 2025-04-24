@@ -9,9 +9,11 @@ import com.nurbek.blog.repository.LikeRepository;
 import com.nurbek.blog.repository.PostRepository;
 import com.nurbek.blog.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,7 +43,11 @@ public class LikeServiceImpl implements LikeService {
     }
 
     @Override
+    @Transactional
     public void unlikePost(Long postId, Long userId) {
+//        if (!likeRepository.existsByPostIdAndUserId(postId, userId)) {
+//            throw new EntityNotFoundException("Like not found for postId=" + postId + " and userId=" + userId);
+//        }
         likeRepository.deleteByPostIdAndUserId(postId, userId);
     }
 
