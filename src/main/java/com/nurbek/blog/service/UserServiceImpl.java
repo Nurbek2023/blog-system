@@ -1,7 +1,7 @@
 package com.nurbek.blog.service;
 
 import com.nurbek.blog.dto.UserDto;
-import com.nurbek.blog.dto.UserRegisterDto;
+import com.nurbek.blog.dto.RegisterUserDto;
 import com.nurbek.blog.entity.User;
 import com.nurbek.blog.mapper.UserMapper;
 import com.nurbek.blog.repository.UserRepository;
@@ -54,7 +54,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto registerUser(UserRegisterDto userRegisterDto) {
+    public UserDto registerUser(RegisterUserDto userRegisterDto) {
         User user = userMapper.toEntity(userRegisterDto);
         return userMapper.toDto(userRepository.save(user));
     }

@@ -56,7 +56,10 @@ class UserRepositoryTest {
 
         userRepository.save(user);
 
-        User found = userRepository.findByUsername("cooluser");
+        // Update: Handle the Optional properly
+        User found = userRepository.findByUsername("cooluser")
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
         assertThat(found).isNotNull();
         assertThat(found.getEmail()).isEqualTo("cool@example.com");
         assertThat(found.getRole()).isEqualTo("ADMIN");

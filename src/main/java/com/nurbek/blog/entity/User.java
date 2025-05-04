@@ -1,5 +1,8 @@
 package com.nurbek.blog.entity;
 
+//The User entity should implement UserDetails from Spring Security to support authentication.
+// Here's the complete entity:
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -65,7 +68,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.username;
+        return email;
     }
 
     @Override

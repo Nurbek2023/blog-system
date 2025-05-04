@@ -1,15 +1,18 @@
 package com.nurbek.blog.controller;
 
 import com.nurbek.blog.dto.UserDto;
-import com.nurbek.blog.dto.UserRegisterDto;
+import com.nurbek.blog.dto.RegisterUserDto;
+import com.nurbek.blog.entity.User;
+import com.nurbek.blog.mapper.UserMapper;
 import com.nurbek.blog.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
@@ -20,6 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final UserMapper userMapper; // ✅ Inject UserMapper
 
     @Operation(summary = "Register a new user", description = "Registers a new user with a username, email, and password.")
     @ApiResponses(value = {
@@ -28,7 +32,7 @@ public class UserController {
     })
     // Register user
     @PostMapping("/register")
-    public ResponseEntity<UserDto> registerUser(@RequestBody @Valid UserRegisterDto registerDto) {
+    public ResponseEntity<UserDto> registerUser(@RequestBody @Valid RegisterUserDto registerDto) {
         UserDto registeredUser = userService.registerUser(registerDto);
         return ResponseEntity.ok(registeredUser);
     }
@@ -88,5 +92,19 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // ✅ NEW: Get authenticated user ("/me")
+    @Operation(summary = "Get current authenticated user", description = "Returns the currently logged-in user's information.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Authenticated user returned"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
+    @GetMapping("/me")
+    public ResponseEntity<UserDto> getAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+        UserDto userDto = userMapper.toDto(currentUser);
+        return ResponseEntity.ok(userDto);
     }
 }
