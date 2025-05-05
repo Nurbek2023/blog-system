@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login Successful</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #74ebd5, #acb6e5);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 16px;
+            color: #555;
+            margin: 10px 0;
+            word-break: break-all;
+        }
+
+        span.token {
+            display: inline-block;
+            padding: 8px 12px;
+            background-color: #f4f4f4;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 14px;
+            max-width: 100%;
+            overflow-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>✅ Social Login Successful!</h1>
+    <p><strong>Access Token:</strong></p>
+    <p><span class="token" id="accessToken"></span></p>
+
+    <p><strong>Refresh Token:</strong></p>
+    <p><span class="token" id="refreshToken"></span></p>
+</div>
+
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    document.getElementById("accessToken").textContent = urlParams.get("accessToken") || "Not provided";
+    document.getElementById("refreshToken").textContent = urlParams.get("refreshToken") || "Not provided";
+</script>
+</body>
+</html>
